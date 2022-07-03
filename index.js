@@ -1,10 +1,22 @@
 let express = require("express");
 let app = express();
 let server = require("http").Server(app);
-let io = require("socket.io")(server);
+let io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  }
+});
+let socketExams = require("./src/sockets");
 
 //Settings
 app.set('port', process.env.PORT || 3000);
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+  next();
+});
 
 //Start server
 server.listen(app.get('port'), function() {
@@ -12,23 +24,7 @@ server.listen(app.get('port'), function() {
 });
 
 //Variables
-let messages = [
-    {
-      author: "Carlos",
-      text: "Hola! que tal?",
-    },
-    {
-      author: "Pepe",
-      text: "Muy bien! y tu??",
-    },
-    {
-      author: "Paco",
-      text: "Genial!",
-    },
-];
+
 
 //WebSockets
-io.on("connection", function (socket) {
-    console.log("Un cliente se ha conectado");
-    socket.emit("messages", messages);
-});
+socketExams.example(io);
