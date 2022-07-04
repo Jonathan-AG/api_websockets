@@ -7,6 +7,7 @@ let io = require("socket.io")(server, {
   }
 });
 let socketExams = require("./src/sockets");
+let example = require("./src/example");
 
 //Settings
 app.set('port', process.env.PORT || 3000);
@@ -23,8 +24,6 @@ server.listen(app.get('port'), function() {
   console.log("listening on port: ", app.get('port'));
 });
 
-//Variables
-
-
 //WebSockets
 socketExams.example(io);
+example.messages(io);
