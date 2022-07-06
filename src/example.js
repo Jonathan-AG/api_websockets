@@ -1,14 +1,10 @@
 module.exports = {
-    messages: function (io, messages) {
+    test: function (io) {
         io.on('connection', async function (socket) {
             //Variables
-            let messages = [],
-                socketID = socket.id;
-
-            messages.push({ID: socketID, message: 'New Connection'});
 
             //Listeners
-            socket.on('example', async function (number) {
+            socket.on('disconnect', async function (number) {
                 console.log("Number: " + number);
             });
 
