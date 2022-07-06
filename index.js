@@ -6,6 +6,9 @@ let io = require("socket.io")(server, {
     origin: "*",
   }
 });
+global.mysql = require("mysql2");
+let conn = require("./herramientas/connectionDB");
+global.SSH2client = require("ssh2").Client;
 let socketSesiones = require("./src/sesiones");
 let socketRecordEducativo = require("./src/record_educativo");
 
@@ -25,5 +28,5 @@ server.listen(app.get('port'), function() {
 });
 
 //WebSockets
-//socketSesiones.sesionesActivas(io);
-socketRecordEducativo.messages(io);
+//socketSesiones.sesionesActivas(io, connection);
+socketRecordEducativo.function(io, conn);

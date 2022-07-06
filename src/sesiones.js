@@ -1,5 +1,5 @@
 module.exports = {
-    sesionesActivas: function (io) {
+    sesionesActivas: function (io, connection) {
         let usuarios = [];
 
         io.on("connection", async function(socket) {
