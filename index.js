@@ -6,8 +6,8 @@ let io = require("socket.io")(server, {
     origin: "*",
   }
 });
-let socketExams = require("./src/sockets");
-let example = require("./src/example");
+let socketSesiones = require("./src/sesiones");
+let socketRecordEducativo = require("./src/record_educativo");
 
 //Settings
 app.set('port', process.env.PORT || 3000);
@@ -25,5 +25,5 @@ server.listen(app.get('port'), function() {
 });
 
 //WebSockets
-socketExams.example(io);
-example.messages(io);
+//socketSesiones.sesionesActivas(io);
+socketRecordEducativo.messages(io);
