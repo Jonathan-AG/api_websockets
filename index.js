@@ -29,4 +29,4 @@ server.listen(app.get('port'), function() {
 
 //WebSockets
 //socketSesiones.sesionesActivas(io, connection);
-socketRecordEducativo.function(io, conn);
+socketRecordEducativo.recordEducativo(io, conn);
