@@ -1,31 +1,28 @@
 module.exports = {
-    function: function (io, server) {
+    recordEducativo: function (io, conn) {
         io.on('connection', async function (socket) {
-            //Querys
-            /*let query = `SELECT id, basededatos FROM escolar.tb_plan_estudio WHERE id = 22;`;
-
-            conn.invokeQuery(query, function(results) {
-                console.log(results);
-            });*/
-
-            //TEST
-            //console.log("Moment, Status: FAILED");
-
+            console.log("Socket record educativo");
             //Variables
-            let activatePages = [];
+            const requestData = socket.handshake.query;
+            const { id_moodle, id_plan_estudio, anio_actual, mes_actual } = requestData;
+
+            /*console.log("alumno conectado");
+            console.log("id_plan_estudio: " + id_plan_estudio);
+            console.log("id_moodle: " + id_moodle);*/
 
             //Listeners
-            socket.on('sendData', async function (data) {
-                console.log("ID Moodle from session is: " + data);
-            });
+            socket.on('getData', function (data) {
+                /*let query = `CALL escolar.sp_record_educativo(${id_moodle},${id_plan_estudio},${mes_actual},${anio_actual});`;
 
-            /*socket.on('disconnect', async function () {
-                console.log("Socket disconnected");
-                console.log("Save data");
-            })*/
+                conn.invokeQuery(query, async function(results) {
+                    console.log(await results);
+                    socket.emit('printData', results[0], results[1]);
+                });*/
+            })
 
-            //Emitters
-            socket.emit('example', { server: "localhost", port: 3000 });
+            /*socket.on('disconnect', function(data) {
+                console.log("Here save data from active pages and hours");
+            });*/
         });
     }
 };
