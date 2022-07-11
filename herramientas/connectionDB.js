@@ -4,11 +4,11 @@ global.connection = module.exports = function() {};
 
 createDBConnection = function() {
     var mysqlConnection = mysql.createConnection({
-        host: config.mysqlConfig.host,
-        user: config.mysqlConfig.user,
-        password: config.mysqlConfig.password,
-        database: config.mysqlConfig.database,
-        connectTimeout: config.mysqlConfig.timeout
+        host: config.mysqlConfigDesarrollo.host,
+        user: config.mysqlConfigDesarrollo.user,
+        password: config.mysqlConfigDesarrollo.password,
+        database: config.mysqlConfigDesarrollo.database,
+        connectTimeout: config.mysqlConfigDesarrollo.timeout
     });
 
     return mysqlConnection;
@@ -16,19 +16,19 @@ createDBConnection = function() {
 
 connection.invokeQuery = function(sqlQuery, resRows) {
     var ssh = new SSH2client();
-    ssh.connect(config.sshTunnelConfig);
+    ssh.connect(config.sshTunnelConfigDesarrollo);
 
     ssh.on('ready', function() {
         ssh.forwardOut(
             config.localhost,
-            config.mysqlConfig.timeout,
+            config.mysqlConfigDesarrollo.timeout,
             config.localhost,
-            config.mysqlConfig.port,
+            config.mysqlConfigDesarrollo.port,
             function(err, stream) {
                 if (err) { console.log(err) };
 
-                config.mysqlConfig.stream = stream;
-                var db = mysql.createConnection(config.mysqlConfig);
+                config.mysqlConfigDesarrollo.stream = stream;
+                var db = mysql.createConnection(config.mysqlConfigDesarrollo);
 
                 db.query(sqlQuery, function(err, rows) {
                     if (err) {

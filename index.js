@@ -28,5 +28,5 @@ server.listen(app.get('port'), function() {
 });
 
 //WebSockets
-//socketSesiones.sesionesActivas(io, connection);
+socketSesiones.sesionesActivas(io, conn);
 socketRecordEducativo.recordEducativo(io, conn);
