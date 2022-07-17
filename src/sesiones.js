@@ -1,17 +1,14 @@
 let moment = require('moment');
 
 module.exports = {
-    sesionesActivas: function (io, connection) {
+    sesionesActivas: function (io, conn) {
         let usuarios = [];
 
         io.on("connection", async function(socket) {
-            console.log("Socket sesiones");
-
             const usuario = socket.handshake.query;
             const id_sesion = socket.id;
 
             socket.join(usuario.id_moodle);
-            //console.log("alumno conectado");
 
             //guarda el inicio de sesion
             if (!usuarios[usuario.id_moodle]) {
@@ -24,6 +21,7 @@ module.exports = {
             //socket.emit("examenes_activos", usuarios[usuario.id_moodle].sesiones_activas);
 
             socket.on('disconnect', function() {
+                console.log(socket.handshake.query);
                 let a = 'as';
                 let b = moment().format("YYYY/MM/DD hh:mm:ss");
 
