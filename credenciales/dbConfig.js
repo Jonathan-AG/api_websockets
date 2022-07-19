@@ -22,6 +22,7 @@ module.exports = {
         username: 'agcolleges',
         password: '*-daBhf*98G389+2heTrd*q809y+t0-8321nl-kc8asd*gp7',
         host: '164.90.144.135',
-        port: 22
+        port: 22,
+        privateKey: require('fs').readFileSync('/Users/Jonathan AG/Documents/AG/Credentials/agdesarrollo.rsa')
     }
 }

@@ -26,22 +26,28 @@ module.exports = {
 
                 var conexiones = [];
 
-                console.log(usuarios[usuario.id_moodle].pagina_activa);
+                //console.log(usuarios[usuario.id_moodle].pagina_activa);
                 //console.log(usuarios[usuario.id_moodle].sesiones_activas);
 
                 for (let [index, log] of usuarios[usuario.id_moodle].sesiones_activas.entries()) {
                     if (log.id_sesion == id_sesion) {
                         a = log.login
 
+                        console.log(log.tipo);
+                        console.log(usuarios[usuario.id_moodle].sesiones_activas.length - 1);
+
                         if ((usuarios[usuario.id_moodle].sesiones_activas.length - 1) == 0 || log.tipo == 2) {
-                            var query = `
+                            /*let query = `
                                 CALL escolar.sp_setSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}')
+                            `;*/
+                            let query = `
+                                SELECT * FROM escolar.tb_plan_estudio WHERE id = ${usuario.id_plan_estudio};
                             `;
 
-                            /*conn.invokeQuery(query, function(results) {
-                                //console.log(results)
-                            });*/
-                            console.log("Save data to database");
+                            conn.invokeQuery(query, function(results) {
+                                console.log(results)
+                            });
+                            //console.log("Save data to database");
                         }
                     } else {
                         conexiones.push(log);
