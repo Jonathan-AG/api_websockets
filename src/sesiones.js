@@ -1,4 +1,4 @@
-let moment = require('moment');
+var moment = require('moment-timezone');
 
 module.exports = {
     sesionesActivas: function (io, conn) {
@@ -12,41 +12,43 @@ module.exports = {
 
             //guarda el inicio de sesion
             if (!usuarios[usuario.id_moodle]) {
-                usuarios[usuario.id_moodle] = { id_moodle: usuario.id_moodle, numero_empleado: usuario.numero_empleado, id_plan_estudio: usuario.id_plan_estudio, sesiones_activas: [], login: moment().format("YYYY/MM/DD hh:mm:ss") };
+                usuarios[usuario.id_moodle] = { id_moodle: usuario.id_moodle, id_plan_estudio: usuario.id_plan_estudio, sesiones_activas: [], login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), pagina_activa: usuario.pagina_activa };
             }
 
-            usuarios[usuario.id_moodle].sesiones_activas.push({ login: moment().format("YYYY/MM/DD hh:mm:ss"), tipo: usuario.tipo, id_sesion: id_sesion, ip: usuario.ip, navegador: usuario.navegador, so: usuario.so, version_so: usuario.version_so });
+            usuarios[usuario.id_moodle].sesiones_activas.push({ login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), tipo: usuario.tipo, id_sesion: id_sesion, ip: usuario.ip, navegador: usuario.navegador, version_so: usuario.version_so });
 
             socket.to(usuario.id_moodle).emit("examenes_activos", usuarios[usuario.id_moodle].sesiones_activas);
             //socket.emit("examenes_activos", usuarios[usuario.id_moodle].sesiones_activas);
 
             socket.on('disconnect', function() {
-                console.log(socket.handshake.query);
-                let a = 'as';
-                let b = moment().format("YYYY/MM/DD hh:mm:ss");
+                let a = '';
+                let b = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss");
 
                 var conexiones = [];
+
+                console.log(usuarios[usuario.id_moodle].pagina_activa);
+                //console.log(usuarios[usuario.id_moodle].sesiones_activas);
 
                 for (let [index, log] of usuarios[usuario.id_moodle].sesiones_activas.entries()) {
                     if (log.id_sesion == id_sesion) {
                         a = log.login
-                            //usuarios[usuario.id_moodle].sesiones_activas.splice(index);
 
-                        if (usuarios[usuario.id_moodle].sesiones_activas.length == 0) {
+                        if ((usuarios[usuario.id_moodle].sesiones_activas.length - 1) == 0 || log.tipo == 2) {
                             var query = `
-                                CALL escolar.sp_setSesion(${usuario.id_moodle},${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}')
+                                CALL escolar.sp_setSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}')
                             `;
 
-                            connection.invokeQuery(query, function(results) {
+                            /*conn.invokeQuery(query, function(results) {
                                 //console.log(results)
-                            });
+                            });*/
+                            console.log("Save data to database");
                         }
                     } else {
                         conexiones.push(log);
                     }
                 }
 
-                usuarios[usuario.id_moodle].sesiones_activas = conexiones;
+                //usuarios[usuario.id_moodle].sesiones_activas = conexiones
                 //console.log(usuarios[usuario.id_moodle].sesiones_activas)
             });
         });
