@@ -12,10 +12,10 @@ module.exports = {
 
             //guarda el inicio de sesion
             if (!usuarios[usuario.id_moodle]) {
-                usuarios[usuario.id_moodle] = { id_moodle: usuario.id_moodle, id_plan_estudio: usuario.id_plan_estudio, sesiones_activas: [], login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), pagina_activa: usuario.pagina_activa };
+                usuarios[usuario.id_moodle] = { id_moodle: usuario.id_moodle, id_plan_estudio: usuario.id_plan_estudio, sesiones_activas: [], login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss") };
             }
 
-            usuarios[usuario.id_moodle].sesiones_activas.push({ login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), tipo: usuario.tipo, id_sesion: id_sesion, ip: usuario.ip, navegador: usuario.navegador, version_so: usuario.version_so });
+            usuarios[usuario.id_moodle].sesiones_activas.push({ login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), tipo: usuario.tipo, id_sesion: id_sesion, ip: usuario.ip, navegador: usuario.navegador, version_so: usuario.version_so, pagina_activa: usuario.pagina_activa });
 
             socket.to(usuario.id_moodle).emit("examenes_activos", usuarios[usuario.id_moodle].sesiones_activas);
             //socket.emit("examenes_activos", usuarios[usuario.id_moodle].sesiones_activas);
@@ -26,35 +26,26 @@ module.exports = {
 
                 var conexiones = [];
 
-                //console.log(usuarios[usuario.id_moodle].pagina_activa);
-                //console.log(usuarios[usuario.id_moodle].sesiones_activas);
-
                 for (let [index, log] of usuarios[usuario.id_moodle].sesiones_activas.entries()) {
                     if (log.id_sesion == id_sesion) {
                         a = log.login
 
-                        console.log(log.tipo);
-                        console.log(usuarios[usuario.id_moodle].sesiones_activas.length - 1);
-
                         if ((usuarios[usuario.id_moodle].sesiones_activas.length - 1) == 0 || log.tipo == 2) {
-                            /*let query = `
-                                CALL escolar.sp_setSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}')
-                            `;*/
                             let query = `
-                                SELECT * FROM escolar.tb_plan_estudio WHERE id = ${usuario.id_plan_estudio};
+                                CALL escolar.sp_setSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}', '${usuario.pagina_activa}')
                             `;
 
                             conn.invokeQuery(query, function(results) {
-                                console.log(results)
+                                //console.log(results)
                             });
-                            //console.log("Save data to database");
+                            console.log("Save data to database");
                         }
                     } else {
                         conexiones.push(log);
                     }
                 }
 
-                //usuarios[usuario.id_moodle].sesiones_activas = conexiones
+                usuarios[usuario.id_moodle].sesiones_activas = conexiones
                 //console.log(usuarios[usuario.id_moodle].sesiones_activas)
             });
         });
