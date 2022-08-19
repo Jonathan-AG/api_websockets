@@ -8,6 +8,7 @@ global.SSH2client = require("ssh2").Client;
 
 /*Sockets*/
 let socketSesiones = require("./src/sesiones");
+let socketClicks = require("./src/clicks");
 
 //Settings
 app.set('port', process.env.PORT || 8080);
@@ -29,5 +30,8 @@ const clicks = io.of("clicks");
 
 /*SESIONES*/
 socketSesiones.sesionesActivas(sesiones, conn);
+
+/*CONTEO DE CLICKS*/
+socketClicks.clicks(clicks, conn);
 
 /*PRUEBAS*/
