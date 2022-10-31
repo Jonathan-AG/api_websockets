@@ -1,7 +1,11 @@
 let express = require("express");
 let app = express();
 let server = require("http").Server(app);
-let io = require("socket.io")(server);
+let io = require("socket.io")(server, {
+	cors: {
+		origin: "*"
+	}
+});
 global.mysql = require("mysql2");
 let conn = require("./herramientas/connectionDB");
 global.SSH2client = require("ssh2").Client;
@@ -17,13 +21,13 @@ server.listen(app.get('port'), function() {
   console.log("listening on port: ", app.get('port'));
 });
 
-const sesiones = io.of("sesiones");
-const clicks = io.of("clicks");
+const sesiones = io.of("/sesiones");
+const clicks = io.of("/clicks");
 
 /*SESIONES*/
 socketSesiones.sesionesActivas(sesiones, conn);
 
 /*CONTEO DE CLICKS*/
-socketClicks.clicks(clicks, conn);
+socketClicks.countClicks(clicks, conn);
 
 /*PRUEBAS*/
