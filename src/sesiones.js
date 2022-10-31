@@ -51,7 +51,7 @@ module.exports = {
                         //GUARDA ULTIMA SESION DEL ALUMNO
                         if ((usuarios[usuario.id_moodle].sesiones_activas.length - 1) == 0 || log.tipo == 2) {
                             let query = `
-                                CALL escolar.sp_setUltimaSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}')
+                                CALL escolar.sp_setUltimaSesion(${usuario.id_moodle},${usuario.id_plan_estudio},'${usuarios[usuario.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}','${usuario.pagina_activa}')
                             `;
 
                             conn.invokeQuery(query, function(results) {
