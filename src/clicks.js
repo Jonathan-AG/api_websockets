@@ -1,9 +1,11 @@
+var moment = require('moment-timezone');
+
 module.exports = {
     countClicks: function (io, conn) {
         io.on("connection", async function(socket) {
             const usuario = socket.handshake.query;
 
-            socket.on("click", async function(values) {
+            socket.on("click", function(values) {
                 let created_at = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss");
 
                 let query = `
