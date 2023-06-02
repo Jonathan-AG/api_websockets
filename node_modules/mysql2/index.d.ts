@@ -1,7 +1,6 @@
 import {
   Connection as PromiseConnection,
-  Pool as PromisePool,
-  PoolConnection as PromisePoolConnection
+  PoolConnection as PromisePoolConnection,
 } from './promise';
 
 import * as mysql from './typings/mysql';
@@ -71,10 +70,19 @@ export interface Connection extends mysql.Connection {
     ) => any
   ): mysql.Query;
   ping(callback?: (err: mysql.QueryError | null) => any): void;
+  unprepare(sql: string): mysql.PrepareStatementInfo;
+  prepare(sql: string, callback?: (err: mysql.QueryError | null, statement: mysql.PrepareStatementInfo) => any): mysql.Prepare;
+  serverHandshake(args: any): any;
+  writeOk(args?: mysql.OkPacketParams): void;
+  writeError(args?: mysql.ErrorPacketParams): void;
+  writeEof(warnings?: number, statusFlags?: number): void;
+  writeTextResult(rows?: Array<any>, columns?: Array<any>): void;
+  writePacket(packet: any): void;
   promise(promiseImpl?: PromiseConstructor): PromiseConnection;
+  sequenceId: number;
 }
 
-export interface PoolConnection extends mysql.PoolConnection, Connection {
+export interface PoolConnection extends mysql.PoolConnection {
   promise(promiseImpl?: PromiseConstructor): PromisePoolConnection;
 }
 
@@ -148,15 +156,11 @@ export interface Pool extends mysql.Connection {
   on(event: 'acquire', listener: (connection: PoolConnection) => any): this;
   on(event: 'release', listener: (connection: PoolConnection) => any): this;
   on(event: 'enqueue', listener: () => any): this;
-  promise(promiseImpl?: PromiseConstructor): PromisePool;
+  unprepare(sql: string): mysql.PrepareStatementInfo;
+  prepare(sql: string, callback?: (err: mysql.QueryError | null, statement: mysql.PrepareStatementInfo) => any): mysql.Prepare;
+  promise(promiseImpl?: PromiseConstructor): PromisePoolConnection;
+  config: mysql.PoolOptions;
 }
-
-type authPlugins = (pluginMetadata: {
-  connection: Connection;
-  command: string;
-}) => (
-  pluginData: Buffer
-) => Promise<string> | string | Buffer | Promise<Buffer> | null;
 
 export interface ConnectionOptions extends mysql.ConnectionOptions {
   charsetNumber?: number;
@@ -174,12 +178,22 @@ export interface ConnectionOptions extends mysql.ConnectionOptions {
   stream?: any;
   uri?: string;
   connectionLimit?: number;
+  maxIdle?: number;
+  idleTimeout?: number;
   Promise?: any;
   queueLimit?: number;
   waitForConnections?: boolean;
   authPlugins?: {
-    [key: string]: authPlugins;
+    [key: string]: mysql.AuthPlugin;
   };
+}
+
+export interface ConnectionConfig extends ConnectionOptions {
+  mergeFlags(defaultFlags: string[], userFlags: string[] | string): number;
+  getDefaultFlags(options?: ConnectionOptions): string[];
+  getCharsetNumber(charset: string): number;
+  getSSLProfile(name: string): { ca: string[] };
+  parseUrl(url: string): { host: string, port: number, database: string, user: string, password: string, [key: string]: any };
 }
 
 export interface PoolOptions extends mysql.PoolOptions, ConnectionOptions {}
