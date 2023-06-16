@@ -17,7 +17,7 @@ app.get("/hello", function(req, res) {
 });
 
 
-const port = 8080;
+const port = process.env.PORT || 4000;
 server.listen(port, () => {
   console.log(`Servidor Socket.io iniciado en el puerto ${port}`);
 });
