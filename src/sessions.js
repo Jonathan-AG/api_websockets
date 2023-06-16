@@ -33,14 +33,14 @@ const activeSessionsSocket = (io, dbConnection) => {
                 if (log.id_sesion == sessionID) {
                     a = log.login_update;
 
-                    const query = `CALL escolar.sp_setSesiones(${user.id_moodle},${user.id_plan_estudio},'${a}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}','${user.pagina_activa}', '${userLogin}')`;
-                    //const rows = await dbConnection.executeQuery(query);
-                    //console.log(rows);
+                    /* const query = `CALL escolar.sp_setSesiones(${user.id_moodle},${user.id_plan_estudio},'${a}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}','${user.pagina_activa}', '${userLogin}')`;
+                    const rows = await dbConnection.executeQuery(query);
+                    console.log(rows); */
 
                     if ((users[user.id_moodle].activeSessions.length - 1) == 0 || log.tipo == 2) {
-                        const query = `CALL escolar.sp_setUltimaSesion(${user.id_moodle},${user.id_plan_estudio},'${users[user.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}','${user.pagina_activa}')`;
-                        //const rows = await dbConnection.executeQuery(query);
-                        //console.log(rows);
+                        /* const query = `CALL escolar.sp_setUltimaSesion(${user.id_moodle},${user.id_plan_estudio},'${users[user.id_moodle].login}','${b}','${log.tipo}','${log.ip}','${log.navegador}','${log.version_so}','${user.pagina_activa}')`;
+                        const rows = await dbConnection.executeQuery(query);
+                        console.log(rows); */
                     }
 
                     if (log.tipo == 2) {

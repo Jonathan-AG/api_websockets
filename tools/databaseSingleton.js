@@ -1,4 +1,3 @@
-import config  from "../credentials/config.js";
 import mysql from 'mysql2';
 import {Client} from "ssh2";
 
@@ -16,16 +15,12 @@ class DatabaseSingleton {
     }
 
     async connect() {
-        console.log('isConnecting:', this.isConnecting);
-        //console.log('database:', this.database);
-        //console.log('shh:', this.sshConnection);
-
         if (this.database) {
             return this.database.promise();
         }
 
         if (this.isConnecting) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 9000));
             return this.connect(config);
         }
 
@@ -33,18 +28,18 @@ class DatabaseSingleton {
 
         try {
             const sshConfig = {
-                host: config.sshHost,
-                port: config.sshPort,
-                username: config.sshUsername,
-                password: config.sshPassword,
+                host: process.env.SSH_HOST,
+                port: process.env.SSH_PORT,
+                username: process.env.SSH_USERNAME,
+                password: process.env.SSH_PASSWORD,
             };
 
             const dbConfig = {
-                host: config.dbHost,
-                port: config.dbPort,
-                user: config.dbUsername,
-                password: config.dbPassword,
-                database: config.dbName,
+                host: process.env.DB_HOST,
+                port: process.env.DB_PORT,
+                user: process.env.DB_USERNAME,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
                 namedPlaceholders: true,
             };
 
