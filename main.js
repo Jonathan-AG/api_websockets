@@ -17,6 +17,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 activeSessionsSocket(session, dbSingleton);
 
+app.get("/hello", function(req, res) {
+  res.status(200).send("Hello World!");
+});
+
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log("🚀 ~ file: main.js:24 ~ port:", port)
