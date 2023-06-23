@@ -9,19 +9,25 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const dbSingleton = new DatabaseSingleton();
-const session = io.of("session");
+const session = io.of("sesiones");
+const usedMemory = process.memoryUsage();
 
 if (process.env.NODE_ENV !== 'production') {
-  DotenvConfigOptions.config(); 
+  DotenvConfigOptions.config();
 }
 
 activeSessionsSocket(session, dbSingleton);
 
 app.get("/hello", function(req, res) {
-  res.status(200).send("Hello World!");
+  res.status(200).send("Hello, world!");
 });
+
+app.get("/memory", function(req, res) {
+  res.status(200).send(usedMemory);
+});
+
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log("🚀 ~ file: main.js:24 ~ port:", port)
+  console.log("file: main.js ~ port:", port)
 });
