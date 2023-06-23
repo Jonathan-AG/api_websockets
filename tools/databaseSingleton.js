@@ -20,8 +20,8 @@ class DatabaseSingleton {
         }
 
         if (this.isConnecting) {
-            await new Promise(resolve => setTimeout(resolve, 9000));
-            return this.connect(config);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return this.connect();
         }
 
         this.isConnecting = true;
