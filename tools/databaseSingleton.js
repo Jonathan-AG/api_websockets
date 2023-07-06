@@ -91,10 +91,10 @@ class DatabaseSingleton {
         }
     }
 
-    async executeQuery(query) {
+    async executeQuery(query, queryParams) {
         try {
             const database = await this.connect();
-            const [rows] = await database.query(query);
+            const [rows] = await database.query(query, queryParams);
             return rows;
         } catch (error) {
             console.error('Error:', error);

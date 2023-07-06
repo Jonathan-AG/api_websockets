@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const dbSingleton = new DatabaseSingleton();
-const session = io.of("sesiones");
+const session = io.of("sessions");
 const usedMemory = process.memoryUsage();
 
 if (process.env.NODE_ENV !== 'production') {
@@ -25,7 +25,6 @@ app.get("/hello", function(req, res) {
 app.get("/memory", function(req, res) {
   res.status(200).send(usedMemory);
 });
-
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
