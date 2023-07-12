@@ -1,94 +1,75 @@
 import moment from "moment-timezone";
 
 const activeSessionsSocket = (io, dbConnection) => {
-    let allSessions = [];
+    const users = [];
+    const querySetSesiones = `CALL escolar.sp_setSesiones(?,?,?,?,?,?,?,?,?,?)`;
 
     io.on('connection', async (socket) => {
         const user = socket.handshake.query,
-            sessionID = socket.id;
-        let isLogin = 0;
-        let room = `${user.userID}-${user.studyProgramID}`;
+            sessionID = socket.id,
+            timeToConnection = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss")
+        let userLogin = 0,
+            room = `${user.id_moodle}-${user.id_plan_estudio}`;
+        const rooms = socket.rooms;
 
         socket.join(room);
 
         socket.on('userLogout', () => {
-            allSessions[user.userID].isLogout = true;
+            users[user.id_moodle].isLogout = true;
         });
 
-        if (!allSessions[user.userID] || allSessions[user.userID].isLogout) {
-            allSessions[user.userID] = {
-                id_moodle: user.userID,
-                id_plan_estudio: user.id_plan_estudio,
-                activeSessions: [],
-                login: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"), 
-                isLogout: false
+        if (!users[user.id_moodle]) {
+            users[user.id_moodle] = {
+                activeExams: []
             };
-            isLogin = 1
-        }
+            userLogin = 1;
+        };
 
-        allSessions[user.userID].activeSessions.push({
-            loginUpdate: moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss"),
-            typeSession: user.type,
-            sessionID: sessionID,
-            ipAddress: user.ip,
-            browser: user.browser,
-            operatingSystem: user.os,
-            currentPage: user.activePage,
-            isLogin: isLogin
-        });
+        if (room && rooms.has(sessionID)) {
+            users[user.id_moodle].activeExams.push({
+                id_sesion: sessionID,
+                tipo: user.tipo,
+                navegador: user.navegador,
+                version_so: user.version_so,
+                ip: user.ip
+            });
+        };
 
-        const activeSockets = Object.values(allSessions)
-            .flatMap(userSessions => userSessions.activeSessions.map(session => session.sessionID));
-
-        socket.emit("saveSession", {
-            session: allSessions[user.userID].activeSessions.at(-1)
-        });
-
-        socket.to(room).emit("activeSockets", {
-            activeSockets: activeSockets,
-            allSessions: allSessions[user.userID].activeSessions
-        });
-
-        const QUERY_SET_SESSIONS = `CALL sp_setSesiones(?,?,?,?,?,?,?,?,?,?)`;
+        socket.emit("activeExams", users[user.id_moodle].activeExams);
 
         socket.on('disconnect', async () => {
-            let timeToDisconnection = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss");
-            const userSessions = allSessions[user.userID];
+            const timeToDisconnection = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss");
 
-            userSessions.activeSessions.forEach(async(element) => {
-                if (element.sessionID === sessionID) {
-                    if (element.typeSession == 2) {
-                        socket.to(room).emit("reloadExam", {
-                            typeSession: element.typeSession,
-                            currentPage: element.currentPage
-                        });
-                    }
-
-                    const QUERY_PARAMS = [
-                        user.userID,
-                        user.studyProgramID,
-                        element.loginUpdate,
-                        timeToDisconnection,
-                        element.typeSession,
-                        element.ipAddress,
-                        element.browser,
-                        element.operatingSystem,
-                        element.currentPage,
-                        element.isLogin
-                    ];
-
-                    await dbConnection.executeQuery(QUERY_SET_SESSIONS, QUERY_PARAMS);
+            if (room && rooms.has(sessionID)) {
+                if (user.tipo == 2) {
+                    socket.to(room).emit('reloadExam', user.tipo);
                 }
-            });
+                /* const queryParams = [
+                    user.id_moodle,
+                    user.id_plan_estudio,
+                    timeToConnection,
+                    timeToDisconnection,
+                    user.tipo,
+                    user.ip,
+                    user.navegador,
+                    user.version_so,
+                    user.pagina_activa,
+                    userLogin
+                ]; */
 
-            if (userSessions) {
-                userSessions.activeSessions = userSessions.activeSessions.filter(session => session.sessionID !== sessionID);
-                const remainingSockets = userSessions.activeSessions.map(session => session.sessionID);
+                /* try {
+                    await dbConnection.executeQuery(querySetSesiones, queryParams);
+                } catch (error) {
+                    console.log(error);
+                } */
 
-                socket.to(room).emit("activeSockets", {
-                    activeSockets: remainingSockets,
-                    allSessions: userSessions.activeSessions
-                });
+                console.log("GUARDA");
+            }
+
+            if (users[user.id_moodle].activeExams) {
+                users[user.id_moodle].activeExams = users[user.id_moodle].activeExams.filter(session => session.id_sesion !== sessionID);
+
+                socket.emit("activeExams", users[user.id_moodle].activeExams);
             }
         });
     });

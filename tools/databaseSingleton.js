@@ -8,19 +8,27 @@ class DatabaseSingleton {
         }
 
         this.isConnecting = false;
-        this.database = null;
+        this.databasePool = null;
         this.sshConnection = null;
 
         DatabaseSingleton.instance = this;
     }
 
+    static getInstance() {
+        if (!DatabaseSingleton.instance) {
+            DatabaseSingleton.instance = new DatabaseSingleton();
+        }
+
+        return DatabaseSingleton.instance;
+    }
+
     async connect() {
-        if (this.database) {
-            return this.database.promise();
+        if (this.databasePool) {
+            return this.databasePool.promise();
         }
 
         if (this.isConnecting) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 9000));
             return this.connect();
         }
 
@@ -62,18 +70,18 @@ class DatabaseSingleton {
                             reject(err);
                         } else {
                             dbConfig.stream = stream;
-                            this.database = mysql.createConnection(dbConfig);
+                            this.databasePool = mysql.createConnection(dbConfig);
                             resolve();
                         }
                     }
                 );
             });
 
-            return this.database.promise();
+            return this.databasePool.promise();
         } catch (err) {
-            console.error('Error:', error);
+            console.error('Error:', err);
             this.close();
-            throw error;
+            throw err;
         } finally {
             this.isConnecting = false;
         }
@@ -84,11 +92,6 @@ class DatabaseSingleton {
             this.sshConnection.end();
             this.sshConnection = null;
         }
-
-        if (this.database) {
-            this.database.end();
-            this.database = null;
-        }
     }
 
     async executeQuery(query, queryParams) {
@@ -96,11 +99,11 @@ class DatabaseSingleton {
             const database = await this.connect();
             const [rows] = await database.query(query, queryParams);
             return rows;
-        } catch (error) {
-            console.error('Error:', error);
-            throw error;
+        } catch (err) {
+            console.error('Error:', err);
+            throw err;
         }
     }
 }
 
-export default DatabaseSingleton;
+export default DatabaseSingleton.getInstance();

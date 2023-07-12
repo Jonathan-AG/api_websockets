@@ -8,15 +8,14 @@ import activeSessionsSocket from './src/sessions.js';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const dbSingleton = new DatabaseSingleton();
-const session = io.of("sessions");
+const session = io.of("sesiones");
 const usedMemory = process.memoryUsage();
 
 if (process.env.NODE_ENV !== 'production') {
   DotenvConfigOptions.config();
 }
 
-activeSessionsSocket(session, dbSingleton);
+activeSessionsSocket(session, DatabaseSingleton);
 
 app.get("/hello", function(req, res) {
   res.status(200).send("Hello, world!");
@@ -28,5 +27,5 @@ app.get("/memory", function(req, res) {
 
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
-  console.log("file: main.js ~ port:", port)
+  console.log("V1-file: main.js ~ port:", port)
 });
