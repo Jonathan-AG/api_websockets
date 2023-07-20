@@ -1,8 +1,9 @@
 import moment from "moment-timezone";
+import fetch from "node-fetch";
 
 const activeSessionsSocket = (io, dbConnection) => {
     const users = [];
-    const querySetSesiones = `CALL escolar.sp_setSesiones(?,?,?,?,?,?,?,?,?,?)`;
+    const indexStudyPrograms = [68,69,70,76,77,80,81,82];
 
     io.on('connection', async (socket) => {
         const user = socket.handshake.query,
@@ -39,31 +40,42 @@ const activeSessionsSocket = (io, dbConnection) => {
 
         socket.on('disconnect', async () => {
             const timeToDisconnection = moment().tz('America/Mazatlan').format("YYYY/MM/DD HH:mm:ss");
+            let urlService = '';
+            const dataRes = {
+                    idMoodle: user.id_moodle,
+                    idPlanEstudio: user.id_plan_estudio,
+                    timeToConnection: timeToConnection,
+                    timeToDisconnection: timeToDisconnection,
+                    tipo: user.tipo,
+                    ip: user.ip,
+                    navegador: user.navegador,
+                    versionSO: user.version_so,
+                    paginaActiva: user.pagina_activa,
+                    userLogin: userLogin
+            };
+
+            if (indexStudyPrograms.includes(parseInt(user.id_plan_estudio))) {
+                urlService = 'https://administrador.academiaglobal.mx/plataformas/api/php/services/setSession.service.php'
+            } else {
+                urlService = 'https://agcollege.edu.mx/api/php/services/setSession.service.php'
+            }
 
             if (room && rooms.has(sessionID)) {
                 if (user.tipo == 2) {
                     socket.to(room).emit('reloadExam', user.tipo);
                 }
-                /* const queryParams = [
-                    user.id_moodle,
-                    user.id_plan_estudio,
-                    timeToConnection,
-                    timeToDisconnection,
-                    user.tipo,
-                    user.ip,
-                    user.navegador,
-                    user.version_so,
-                    user.pagina_activa,
-                    userLogin
-                ]; */
 
-                /* try {
-                    await dbConnection.executeQuery(querySetSesiones, queryParams);
+                try {
+                    await fetch(urlService, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(dataRes)
+                    });
                 } catch (error) {
                     console.log(error);
-                } */
-
-                console.log("GUARDA");
+                }
             }
 
             if (users[user.id_moodle].activeExams) {
